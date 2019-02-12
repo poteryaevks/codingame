@@ -1,23 +1,17 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#include <algorithm>
 #include <list>
 #include <queue>
 #include <stack>
 #include <map>
-#include <set>
 #include <iterator>
 
 using namespace std;
-//////
-
-set<int> deadlock;
-
 
 struct graph_node
 {
-	int num; //номер - это первый и последний индекс элемента матрицы
+	int num;
 	int weight;
 	bool go_here;
 };
@@ -31,7 +25,6 @@ char* calc_dir(int from, int to);
 void add_neighbours(string* map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes);
 void add(string* m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g);
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish);
-
 
 /**
  * Auto-generated code below aims at helping you parse
@@ -51,9 +44,6 @@ int main()
     
     bool found = false;  
     bool back = false;
-    bool init = false;  
-    
-    
     
     // game loop
     while (1) {
@@ -70,21 +60,12 @@ int main()
             cin >> ROW; cin.ignore();
             map[i] = ROW;
 		 }
-		 
-
-	if(!init)
-	{
-	    init_coordinate.first = KR;
-	    init_coordinate.second = KC;
-	    init = true;
-	    }
-	    
-		 
+		 		 
 		 if(KR == room_coordinate.first 
 		 && KC == room_coordinate.second)
 		    back = true;
 		 
-		 
+		 //graph init
 		 for (int i = 0; i < R; i++)
 	     {
 		    for (int j = 0; j < C; j++)
@@ -95,11 +76,17 @@ int main()
 		     	   	       
 			 if(map[i][j] == 'C')
 		      {
-		        //комната найдена
-		        //сохранить ее  координаты
+		        //room
 		        found = true;
 		        room_coordinate.first = i;
 		        room_coordinate.second = j;
+		      }
+		      
+		      //init pos
+		       if(map[i][j] == 'T')
+		      {	      
+		        init_coordinate.first = i;
+		        init_coordinate.second = j;
 		      }
 		      
 			  add(map, R, C, i, j, graph);
@@ -110,32 +97,30 @@ int main()
 
 	     if(back)
 	     {
-	        stack<int> st; 
 	        int go_to = get_num(init_coordinate, C);
 	        int go_from = get_num({KR, KC}, C);
-	        st = find_way(graph, go_from, go_to); 
+	        stack<int> st = find_way(graph, go_from, go_to); 
 	        char *c = calc_dir(go_from, st.top());
-	        cout << c << endl;
+	        cout << c;    
 	     }
 	     else if(found && where_to_go.size() == 0)
 	     {
-	        stack<int> st; 
 	        int go_to = get_num(room_coordinate, C);
 	        int go_from = get_num({KR, KC}, C);
-	        st = find_way(graph, go_from, go_to); 
+	        stack<int> st = find_way(graph, go_from, go_to); 
 	        char *c = calc_dir(go_from, st.top());
-	        cout << c << endl;
+	        cout << c;
 	     }
 	     else 
 	     {
-	        stack<int> st; 
 	        int go_to = where_to_go.top();
 	        int go_from = get_num({KR, KC}, C);
-	        st = find_way(graph, go_from, go_to); 
+	        stack<int> st = find_way(graph, go_from, go_to); 
 	        char *c = calc_dir(go_from, st.top());
-	        cout << c << endl;
+	        cout << c;
 	     }
-	        
+	    
+	    cout << endl; 
         graph.clear();
     }
 }
@@ -188,7 +173,6 @@ void add_node(list<graph_node> &nodes, int n, bool go)
 }
 
 
-//анализ соседей  
 void add_neighbours(string* map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes)
 {
 	if (cr.first != 0)
@@ -254,8 +238,8 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 	int counter = 0;
 	int exp = 1;
-	queue<int> for_counter; //очередь для присвоения номера-веса
-	queue<int> que; //очередь на проверку 
+	queue<int> for_counter;
+	queue<int> que;
 
 	list<list<graph_node>> ::iterator it_g = g.begin();
 	(*(*it_g).begin()).weight = temp_weight;
@@ -322,7 +306,6 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 		}
 	} while (it_g != g.end());
 
-	////////////////////////////////////////////////////
 
 	current_num = finish;
 	way.push(finish);
@@ -363,6 +346,8 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 	} while (it_g != g.end());
 }
+
+
 
 char* calc_dir(int from, int to)
 {    
