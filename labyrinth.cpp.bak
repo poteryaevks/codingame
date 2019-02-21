@@ -1,4 +1,4 @@
-
+п»ї
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -40,7 +40,7 @@ int main()
 	int A; // number of rounds between the time the alarm countdown is activated and the time the alarm goes off.
 	cin >> R >> C >> A; cin.ignore();
 
-	list<list<graph_node>> graph; //граф
+	list<list<graph_node>> graph; //РіСЂР°С„
 	pair<int, int> room_coordinate;
 	pair<int, int> init_coordinate;
 
@@ -49,7 +49,7 @@ int main()
 
 	// game loop
 	while (1) {
-		string map[30]; //карта 
+		string map[30]; //РєР°СЂС‚Р° 
 		stack<int> where_to_go;
 
 		int KR; // row where Kirk is located.
@@ -90,7 +90,6 @@ int main()
 						init_coordinate.first = i;
 						init_coordinate.second = j;
 					}
-
 					add(map, R, C, i, j, graph);
 				}
 			}
@@ -121,7 +120,6 @@ int main()
 			char *c = calc_dir(go_from, st.top());
 			cout << c;
 		}
-
 		cout << endl;
 		graph.clear();
 	}
@@ -165,6 +163,7 @@ void check(list<list<graph_node>> g, int kirk, stack<int> &w_t_g)
 		}
 	}
 }
+
 
 void add_node(list<graph_node> &nodes, int n, bool go)
 {
@@ -228,7 +227,6 @@ void add_neighbours(string* map, int size_r, int size_c, pair<int, int> cr, list
 }
 
 
-
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 {
 	stack<int> way;
@@ -259,7 +257,7 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 				if (it == (num_weight.end()))
 				{
-					//заносим в map
+					//Р·Р°РЅРѕСЃРёРј РІ map
 					num_weight.insert(make_pair((*it_n).num, temp_weight));
 					(*it_n).weight = temp_weight;
 					que.push((*it_n).num);
@@ -279,7 +277,7 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 				temp_weight++;
 			}
 
-			//если очередь пуста - обход графа закончен
+			//РµСЃР»Рё РѕС‡РµСЂРµРґСЊ РїСѓСЃС‚Р° - РѕР±С…РѕРґ РіСЂР°С„Р° Р·Р°РєРѕРЅС‡РµРЅ
 			if (que.empty())
 			{
 				map <int, int> ::iterator it;
@@ -291,19 +289,19 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 				break;
 			}
 
-			//если не пуста - берем соседа из очереди
+			//РµСЃР»Рё РЅРµ РїСѓСЃС‚Р° - Р±РµСЂРµРј СЃРѕСЃРµРґР° РёР· РѕС‡РµСЂРµРґРё
 			current_num = que.front();
 			que.pop();
 
-			//сброс счетчика
+			//СЃР±СЂРѕСЃ СЃС‡РµС‚С‡РёРєР°
 			counter = 0;
 
-			//сброс итератора
+			//СЃР±СЂРѕСЃ РёС‚РµСЂР°С‚РѕСЂР°
 			it_g = g.begin();
 		}
 		else
 		{
-			//если не нашли, то идем дальше 
+			//РµСЃР»Рё РЅРµ РЅР°С€Р»Рё, С‚Рѕ РёРґРµРј РґР°Р»СЊС€Рµ 
 			++it_g;
 		}
 	} while (it_g != g.end());
@@ -342,10 +340,9 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 		else
 		{
-			//если не нашли, то идем дальше 
+			//РµСЃР»Рё РЅРµ РЅР°С€Р»Рё, С‚Рѕ РёРґРµРј РґР°Р»СЊС€Рµ 
 			++it_g;
 		}
-
 	} while (it_g != g.end());
 }
 
