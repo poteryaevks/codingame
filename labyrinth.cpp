@@ -1,5 +1,4 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include <cstring>
 #include <vector>
 #include <list>
@@ -8,113 +7,126 @@
 #include <map>
 #include <iterator>
 
+#define UP (-30)
+#define DOWN (30)
+#define RIGHT (1)
+#define LEFT (-1)
+
 using namespace std;
 
 struct graph_node
 {
-	int num;
+	int num; //номер - это первый и последний индекс элемента матрицы
 	int weight;
-	bool go_here;
 };
 
-void add_node(list<graph_node> &nodes, int n, bool go);
-void check(list<list<graph_node>> g, int kirk, stack<int> &w_t_g);
-
+void add_node(list<graph_node> &nodes, int n);
+void choose_point_to_go(vector<string> m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk);
 int get_num(pair<int, int> p, int size_c);
 char* calc_dir(int from, int to);
-
-void add_neighbours(string* map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes);
-void add(string* m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g);
+bool is_way_element(char c);
+void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes);
+void add(vector<string> m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g);
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish);
 
-/**
-* Auto-generated code below aims at helping you parse
-* the standard input according to the problem statement.
-**/
 
 int main()
 {
-	int R; // number of rows.
-	int C; // number of columns.
+	int number_of_rows; // number of rows.
+	int  number_of_colomns; // number of columns.
 	int A; // number of rounds between the time the alarm countdown is activated and the time the alarm goes off.
-	cin >> R >> C >> A; cin.ignore();
+	cin >> number_of_rows >> number_of_colomns >> A; cin.ignore();
 
 	list<list<graph_node>> graph; //граф
 	pair<int, int> room_coordinate;
 	pair<int, int> init_coordinate;
 
-	bool found = false;
-	bool back = false;
+	bool room_found = false;
+	bool go_back = false;
 
 	// game loop
 	while (1) {
-		string map[30]; //карта 
-		stack<int> where_to_go;
+		vector<string> _map(30); //карта 
+		int go_to = 0;
 
-		int KR; // row where Kirk is located.
-		int KC; // column where Kirk is located.
-		cin >> KR >> KC; cin.ignore();
+		int kirk_r; // row where Kirk is located.
+		int kirk_c; // column where Kirk is located.
+		cin >> kirk_r >> kirk_c; cin.ignore();
 
-		for (int i = 0; i < R; i++)
+		//положение кирка
+		int kirk_pos = get_num({ kirk_r, kirk_c }, number_of_colomns);
+		for (int i = 0; i < number_of_rows; i++)
 		{
 			string ROW; // C of the characters in '#.TC?' (i.e. one line of the ASCII maze).
 			cin >> ROW; cin.ignore();
-			map[i] = ROW;
+			_map[i] = ROW;
 		}
 
-		if (KR == room_coordinate.first
-			&& KC == room_coordinate.second)
-			back = true;
+		if (kirk_r == room_coordinate.first
+			&& kirk_c == room_coordinate.second)
+			go_back = true;
 
 		//graph init
-		for (int i = 0; i < R; i++)
+		for (int i = 0; i < number_of_rows; i++)
 		{
-			for (int j = 0; j < C; j++)
+			for (int j = 0; j < number_of_colomns; j++)
 			{
-				if (map[i][j] != '#'
-					&& map[i][j] != '?')
+				if (_map[i][j] != '#'
+					&& _map[i][j] != '?')
 				{
 
-					if (map[i][j] == 'C')
+					if (_map[i][j] == 'C')
 					{
 						//room
-						found = true;
+						room_found = true;
 						room_coordinate.first = i;
 						room_coordinate.second = j;
 					}
 
 					//init pos
-					if (map[i][j] == 'T')
+					if (_map[i][j] == 'T')
 					{
 						init_coordinate.first = i;
 						init_coordinate.second = j;
 					}
-					add(map, R, C, i, j, graph);
+					add(_map, number_of_rows, number_of_colomns, i, j, graph);
+
+
 				}
 			}
 		}
-		check(graph, get_num({ KR, KC }, C), where_to_go);
 
-		if (back)
+		for (int i = 0; i < number_of_rows; i++) //определение точки, к которой нужно двигаться
 		{
-			int go_to = get_num(init_coordinate, C);
-			int go_from = get_num({ KR, KC }, C);
+			for (int j = 0; j < number_of_colomns; j++)
+			{
+				choose_point_to_go(_map, number_of_rows, number_of_colomns, i, j, go_to, graph, kirk_pos);
+				if (go_to)
+				{
+					break;
+				}
+			}
+		}
+
+		if (go_back)
+		{
+			go_to = get_num(init_coordinate, number_of_colomns);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
 			stack<int> st = find_way(graph, go_from, go_to);
 			char *c = calc_dir(go_from, st.top());
 			cout << c;
 		}
-		else if (found && where_to_go.size() == 0)
+		else if (room_found && go_to == 0)
 		{
-			int go_to = get_num(room_coordinate, C);
-			int go_from = get_num({ KR, KC }, C);
+			go_to = get_num(room_coordinate, number_of_colomns);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
 			stack<int> st = find_way(graph, go_from, go_to);
 			char *c = calc_dir(go_from, st.top());
 			cout << c;
 		}
 		else
 		{
-			int go_to = where_to_go.top();
-			int go_from = get_num({ KR, KC }, C);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
 			stack<int> st = find_way(graph, go_from, go_to);
 			char *c = calc_dir(go_from, st.top());
 			cout << c;
@@ -126,104 +138,89 @@ int main()
 
 
 
-void add(string* m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g)
+void add(vector<string> m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g)
 {
 	list<graph_node> temp_node;
 	int temp_num = get_num({ i, j }, size_c);
-	bool go = false;
 
-	if ((i != 0 && m[i - 1][j] == '?')
-		|| (j != 0 && m[i][j - 1] == '?')
-		|| (j != size_c && m[i][j + 1] == '?')
-		|| (i != size_r && m[i + 1][j] == '?'))
-	{
-		go = true;
-	}
-	add_node(temp_node, temp_num, go);
+	add_node(temp_node, temp_num);
 	add_neighbours(m, size_r, size_c, { i, j }, temp_node);
 	g.push_back(temp_node);
 }
 
 
-void check(list<list<graph_node>> g, int kirk, stack<int> &w_t_g)
+void choose_point_to_go(vector<string> m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk)
 {
-	for (list<list<graph_node>> ::iterator it_g = g.begin(); it_g != g.end(); it_g++)
+	int temp_num;
+	temp_num = get_num({ i, j }, size_c);
+	if ((i != 0 && m[i - 1][j] == '?')
+		|| (j != 0 && m[i][j - 1] == '?')
+		|| (j != size_c && m[i][j + 1] == '?')
+		|| (i != size_r && m[i + 1][j] == '?'))
 	{
-		list<graph_node> ::iterator it_n = (*it_g).begin();
-		if ((*it_n).go_here)
+		stack<int> st;
+		int go_from = kirk;
+		st = find_way(g, go_from, temp_num);
+		if (st.size() != 0)
 		{
-			stack<int> st;
-			int go_from = kirk;
-			st = find_way(g, go_from, (*it_n).num);
-			if (st.size() != 0)
-			{
-				w_t_g.push((*it_n).num);
-			}
+			go = temp_num;
 		}
 	}
 }
 
-
-void add_node(list<graph_node> &nodes, int n, bool go)
+void add_node(list<graph_node> &nodes, int n)
 {
 	graph_node temp_elem;
-	temp_elem.go_here = go;
 	temp_elem.num = n;
 	nodes.push_back(temp_elem);
 }
 
 
-void add_neighbours(string* map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes)
+//анализ соседей  
+void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes)
 {
 	if (cr.first != 0)
 	{
 		//UP
-		if (map[cr.first - 1][cr.second] == '.'
-			|| map[cr.first - 1][cr.second] == 'C'
-			|| map[cr.first - 1][cr.second] == 'T')
+		if (is_way_element(map[cr.first - 1][cr.second]))
 		{
 			pair<int, int> temp_cr(cr.first - 1, cr.second);
 			int temp_num = get_num(temp_cr, size_c);
-			add_node(nodes, temp_num, false);
+			add_node(nodes, temp_num);
 		}
 	}
 	if (cr.second != 0)
 	{
 		//LEFT
-		if (map[cr.first][cr.second - 1] == '.'
-			|| map[cr.first][cr.second - 1] == 'C'
-			|| map[cr.first][cr.second - 1] == 'T')
+		if (is_way_element(map[cr.first][cr.second - 1]))
 		{
 			pair<int, int> temp_cr(cr.first, cr.second - 1);
 			int temp_num = get_num(temp_cr, size_c);
-			add_node(nodes, temp_num, false);
+			add_node(nodes, temp_num);
 		}
 	}
 	if (cr.second < size_c - 1)
 	{
 		//RIGHT
-		if (map[cr.first][cr.second + 1] == '.'
-			|| map[cr.first][cr.second + 1] == 'C'
-			|| map[cr.first][cr.second + 1] == 'T')
+		if (is_way_element(map[cr.first][cr.second + 1]))
 		{
 			pair<int, int> temp_cr(cr.first, cr.second + 1);
 			int temp_num = get_num(temp_cr, size_c);
-			add_node(nodes, temp_num, false);
+			add_node(nodes, temp_num);
 		}
 	}
 	if (cr.first < size_r - 1)
 	{
 		//DOWN
-		if (map[cr.first + 1][cr.second] == '.'
-			|| map[cr.first + 1][cr.second] == 'C'
-			|| map[cr.first + 1][cr.second] == 'T')
+		if (is_way_element(map[cr.first + 1][cr.second]))
 		{
 			pair<int, int> temp_cr(cr.first + 1, cr.second);
 			int temp_num = get_num(temp_cr, size_c);
-			add_node(nodes, temp_num, false);
+			add_node(nodes, temp_num);
 		}
 	}
 }
+
 
 
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
@@ -237,8 +234,8 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 	int counter = 0;
 	int exp = 1;
-	queue<int> for_counter;
-	queue<int> que;
+	queue<int> for_counter; //очередь для присвоения номера-веса
+	queue<int> que; //очередь на проверку 
 
 	list<list<graph_node>> ::iterator it_g = g.begin();
 	(*(*it_g).begin()).weight = temp_weight;
@@ -305,7 +302,6 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 		}
 	} while (it_g != g.end());
 
-
 	current_num = finish;
 	way.push(finish);
 	it_g = g.begin();
@@ -349,16 +345,30 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 
 char* calc_dir(int from, int to)
 {
-	if (from + 30 == to)
-		return "DOWN";
-	else if (from - 30 == to)
+	if (from + UP == to)
 		return "UP";
-	else if (from + 1 == to)
+	else if (from + DOWN == to)
+		return "DOWN";
+	else if (from + RIGHT == to)
 		return "RIGHT";
-	else if (from - 1 == to)
+	else if (from + LEFT == to)
 		return "LEFT";
 	else
 		return "error";
+}
+
+bool is_way_element(char c)
+{
+	if (c == '.'
+		|| c == 'C'
+		|| c == 'T')
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
@@ -366,5 +376,3 @@ int get_num(pair<int, int> p, int size_c)
 {
 	return (p.first * size_c + p.second + 1);
 }
-
-
