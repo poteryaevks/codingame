@@ -8,8 +8,6 @@
 #include <map>
 #include <iterator>
 
-
-
 using namespace std;
 
 struct graph_node
