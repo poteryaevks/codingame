@@ -7,37 +7,32 @@
 #include <map>
 #include <iterator>
 
-#define UP (-30)
-#define DOWN (30)
-#define RIGHT (1)
-#define LEFT (-1)
-
 using namespace std;
 
 struct graph_node
 {
-	int num; //номер - это первый и последний индекс элемента матрицы
+	int num; //номер формируется из индексов элемента массива
 	int weight;
 };
 
 void add_node(list<graph_node> &nodes, int n);
-void choose_point_to_go(vector<string> m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk);
+void choose_point_to_go(const vector<string> &m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk);
 int get_num(pair<int, int> p, int size_c);
-char* calc_dir(int from, int to);
+char* calc_dir(int from, int to, int size_c);
 bool is_way_element(char c);
-void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes);
-void add(vector<string> m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g);
+void add_neighbours(const vector<string> &m, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes);
+void add(const vector<string> &m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g);
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish);
 
 
 int main()
 {
-	int number_of_rows; // number of rows.
-	int  number_of_colomns; // number of columns.
-	int A; // number of rounds between the time the alarm countdown is activated and the time the alarm goes off.
-	cin >> number_of_rows >> number_of_colomns >> A; cin.ignore();
+	int number_of_rows;
+	int  number_of_columns;
+	int  A; //необходимо для работы программы
+	cin >> number_of_rows >> number_of_columns >> A; cin.ignore();
 
-	list<list<graph_node>> graph; //граф
+	list<list<graph_node>> graph;
 	pair<int, int> room_coordinate;
 	pair<int, int> init_coordinate;
 
@@ -45,21 +40,20 @@ int main()
 	bool go_back = false;
 
 	// game loop
-	while (1) {
-		vector<string> _map(30); //карта 
+	while (1)
+	{
+		vector<string> _map(number_of_rows + 1);
 		int go_to = 0;
 
-		int kirk_r; // row where Kirk is located.
-		int kirk_c; // column where Kirk is located.
+		int kirk_r;
+		int kirk_c;
 		cin >> kirk_r >> kirk_c; cin.ignore();
 
-		//положение кирка
-		int kirk_pos = get_num({ kirk_r, kirk_c }, number_of_colomns);
+
+		int kirk_pos = get_num({ kirk_r, kirk_c }, number_of_columns);
 		for (int i = 0; i < number_of_rows; i++)
 		{
-			string ROW; // C of the characters in '#.TC?' (i.e. one line of the ASCII maze).
-			cin >> ROW; cin.ignore();
-			_map[i] = ROW;
+			cin >> _map[i]; cin.ignore();
 		}
 
 		if (kirk_r == room_coordinate.first
@@ -69,15 +63,14 @@ int main()
 		//graph init
 		for (int i = 0; i < number_of_rows; i++)
 		{
-			for (int j = 0; j < number_of_colomns; j++)
+			for (int j = 0; j < number_of_columns; j++)
 			{
 				if (_map[i][j] != '#'
 					&& _map[i][j] != '?')
 				{
-
+					//room pos
 					if (_map[i][j] == 'C')
 					{
-						//room
 						room_found = true;
 						room_coordinate.first = i;
 						room_coordinate.second = j;
@@ -89,46 +82,44 @@ int main()
 						init_coordinate.first = i;
 						init_coordinate.second = j;
 					}
-					add(_map, number_of_rows, number_of_colomns, i, j, graph);
-
-
+					add(_map, number_of_rows, number_of_columns, i, j, graph);
 				}
 			}
 		}
 
-		for (int i = 0; i < number_of_rows; i++) //определение точки, к которой нужно двигаться
+		//определение точки, к которой нужно двигаться
+		for (int i = 0; i < number_of_rows; i++)
 		{
-			for (int j = 0; j < number_of_colomns; j++)
+			for (int j = 0; j < number_of_columns; j++)
 			{
-				choose_point_to_go(_map, number_of_rows, number_of_colomns, i, j, go_to, graph, kirk_pos);
+				choose_point_to_go(_map, number_of_rows, number_of_columns, i, j, go_to, graph, kirk_pos);
 				if (go_to)
 				{
 					break;
 				}
 			}
 		}
-
 		if (go_back)
 		{
-			go_to = get_num(init_coordinate, number_of_colomns);
-			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
+			go_to = get_num(init_coordinate, number_of_columns);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_columns);
 			stack<int> st = find_way(graph, go_from, go_to);
-			char *c = calc_dir(go_from, st.top());
+			char *c = calc_dir(go_from, st.top(), number_of_columns);
 			cout << c;
 		}
 		else if (room_found && go_to == 0)
 		{
-			go_to = get_num(room_coordinate, number_of_colomns);
-			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
+			go_to = get_num(room_coordinate, number_of_columns);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_columns);
 			stack<int> st = find_way(graph, go_from, go_to);
-			char *c = calc_dir(go_from, st.top());
+			char *c = calc_dir(go_from, st.top(), number_of_columns);
 			cout << c;
 		}
 		else
 		{
-			int go_from = get_num({ kirk_r, kirk_c }, number_of_colomns);
+			int go_from = get_num({ kirk_r, kirk_c }, number_of_columns);
 			stack<int> st = find_way(graph, go_from, go_to);
-			char *c = calc_dir(go_from, st.top());
+			char *c = calc_dir(go_from, st.top(), number_of_columns);
 			cout << c;
 		}
 		cout << endl;
@@ -138,18 +129,17 @@ int main()
 
 
 
-void add(vector<string> m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g)
+void add(const vector<string> &m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g)
 {
 	list<graph_node> temp_node;
 	int temp_num = get_num({ i, j }, size_c);
-
 	add_node(temp_node, temp_num);
 	add_neighbours(m, size_r, size_c, { i, j }, temp_node);
 	g.push_back(temp_node);
 }
 
 
-void choose_point_to_go(vector<string> m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk)
+void choose_point_to_go(const vector<string> &m, int size_r, int size_c, int i, int j, int& go, list<list<graph_node>> &g, int kirk)
 {
 	int temp_num;
 	temp_num = get_num({ i, j }, size_c);
@@ -168,6 +158,7 @@ void choose_point_to_go(vector<string> m, int size_r, int size_c, int i, int j, 
 	}
 }
 
+
 void add_node(list<graph_node> &nodes, int n)
 {
 	graph_node temp_elem;
@@ -177,12 +168,12 @@ void add_node(list<graph_node> &nodes, int n)
 
 
 //анализ соседей  
-void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes)
+void add_neighbours(const vector<string> &m, int size_r, int size_c, pair<int, int> cr, list<graph_node> &nodes)
 {
 	if (cr.first != 0)
 	{
 		//UP
-		if (is_way_element(map[cr.first - 1][cr.second]))
+		if (is_way_element(m[cr.first - 1][cr.second]))
 		{
 			pair<int, int> temp_cr(cr.first - 1, cr.second);
 			int temp_num = get_num(temp_cr, size_c);
@@ -192,7 +183,7 @@ void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> c
 	if (cr.second != 0)
 	{
 		//LEFT
-		if (is_way_element(map[cr.first][cr.second - 1]))
+		if (is_way_element(m[cr.first][cr.second - 1]))
 		{
 			pair<int, int> temp_cr(cr.first, cr.second - 1);
 			int temp_num = get_num(temp_cr, size_c);
@@ -202,7 +193,7 @@ void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> c
 	if (cr.second < size_c - 1)
 	{
 		//RIGHT
-		if (is_way_element(map[cr.first][cr.second + 1]))
+		if (is_way_element(m[cr.first][cr.second + 1]))
 		{
 			pair<int, int> temp_cr(cr.first, cr.second + 1);
 			int temp_num = get_num(temp_cr, size_c);
@@ -212,7 +203,7 @@ void add_neighbours(vector<string> map, int size_r, int size_c, pair<int, int> c
 	if (cr.first < size_r - 1)
 	{
 		//DOWN
-		if (is_way_element(map[cr.first + 1][cr.second]))
+		if (is_way_element(m[cr.first + 1][cr.second]))
 		{
 			pair<int, int> temp_cr(cr.first + 1, cr.second);
 			int temp_num = get_num(temp_cr, size_c);
@@ -341,17 +332,15 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 	} while (it_g != g.end());
 }
 
-
-
-char* calc_dir(int from, int to)
+char* calc_dir(int from, int to, int size_c)
 {
-	if (from + UP == to)
+	if (from - size_c == to)
 		return "UP";
-	else if (from + DOWN == to)
+	else if (from + size_c == to)
 		return "DOWN";
-	else if (from + RIGHT == to)
+	else if (from + 1 == to)
 		return "RIGHT";
-	else if (from + LEFT == to)
+	else if (from - 1 == to)
 		return "LEFT";
 	else
 		return "error";
