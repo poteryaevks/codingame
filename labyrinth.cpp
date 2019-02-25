@@ -1,4 +1,6 @@
-﻿#include <iostream>
+﻿#include "stdafx.h"
+
+#include <iostream>
 #include <cstring>
 #include <vector>
 #include <list>
@@ -6,12 +8,19 @@
 #include <stack>
 #include <map>
 #include <iterator>
+#include <gtest/gtest.h>
+#include <conio.h>
 
 using namespace std;
 
+#define MAP_4
+
+#include "maps.h"
+
+
 struct graph_node
 {
-	int num; //номер формируется из   индексов элемента массива
+	int num; //номер - это первый и последний индекс элемента матрицы
 	int weight;
 };
 
@@ -25,14 +34,70 @@ void add(const vector<string> &m, int size_r, int size_c, int i, int j, list<lis
 stack<int> find_way(list<list<graph_node>> &g, int start, int finish);
 
 
-int main()
+TEST(codingame_test, find_way)
+{
+	int start;
+	list<list<graph_node>> graph;
+
+	for (int j = 0; j < _map.size(); j++)
+	{
+		int i = 0;
+		while (_map[j][i])
+		{
+			if (_map[j][i] != '#'
+				&& _map[j][i] != '?')
+			{
+				if (_map[j][i] == 'T')
+				{
+					start = get_num({j, i}, _map[j].size());
+				}
+				add(_map, _map.size(), _map[j].size(), j, i, graph);
+			}
+			else
+			{
+				int temp = get_num({ j, i }, _map[j].size());
+				no_way.push_back(temp);
+			}
+			i++;
+		}
+	}
+
+	for (size_t i = 0; i < no_way.size(); i++)
+	{
+		stack<int>  way = find_way(graph, start, no_way[i]);
+		EXPECT_EQ(0, way.size());
+	}
+
+	for (size_t i = 0; i < isolated_points.size(); i++)
+	{
+		stack<int>  way = find_way(graph, start, isolated_points[i]);
+		EXPECT_EQ(0, way.size());
+	}
+
+	for (size_t i = 0; i < not_isolated_points.size(); i++)
+	{
+		stack<int>  way = find_way(graph, start, not_isolated_points[i]);
+		EXPECT_NE(0, way.size());
+	}
+}
+
+
+int main(int argc, char* argv[])
+{
+	testing::InitGoogleTest(&argc, argv);
+	RUN_ALL_TESTS();
+	_getch();
+	return 1;
+}
+
+void for_main()
 {
 	int number_of_rows;
 	int  number_of_columns;
-    int  A; //необходимо для работы программы
+	int  A;
 	cin >> number_of_rows >> number_of_columns >> A; cin.ignore();
 
-	list<list<graph_node>> graph; 
+	list<list<graph_node>> graph;
 	pair<int, int> room_coordinate;
 	pair<int, int> init_coordinate;
 
@@ -40,9 +105,9 @@ int main()
 	bool go_back = false;
 
 	// game loop
-	while (1) 
+	while (1)
 	{
-		vector<string> _map(number_of_rows + 1); //карта 
+		vector<string> _map(number_of_rows + 1);
 		int go_to = 0;
 
 		int kirk_r; // row where Kirk is located.
@@ -55,11 +120,6 @@ int main()
 		{
 			cin >> _map[i]; cin.ignore();
 		}
-		 
-			for (int i = 0; i < number_of_rows; i++)
-			{
-			    cerr << _map[i] << endl;
-			    }
 
 		if (kirk_r == room_coordinate.first
 			&& kirk_c == room_coordinate.second)
@@ -130,8 +190,6 @@ int main()
 		graph.clear();
 	}
 }
-
-
 
 void add(const vector<string> &m, int size_r, int size_c, int i, int j, list<list<graph_node>> &g)
 {
@@ -375,5 +433,3 @@ int get_num(pair<int, int> p, int size_c)
 {
 	return (p.first * size_c + p.second + 1);
 }
-
-
