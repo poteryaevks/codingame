@@ -11,7 +11,7 @@ using namespace std;
 
 struct graph_node
 {
-	int num; //номер формируется из индексов элемента массива
+	int num; //номер формируется из   индексов элемента массива
 	int weight;
 };
 
@@ -29,10 +29,10 @@ int main()
 {
 	int number_of_rows;
 	int  number_of_columns;
-	int  A; //необходимо для работы программы
+    int  A; //необходимо для работы программы
 	cin >> number_of_rows >> number_of_columns >> A; cin.ignore();
 
-	list<list<graph_node>> graph;
+	list<list<graph_node>> graph; 
 	pair<int, int> room_coordinate;
 	pair<int, int> init_coordinate;
 
@@ -40,21 +40,26 @@ int main()
 	bool go_back = false;
 
 	// game loop
-	while (1)
+	while (1) 
 	{
-		vector<string> _map(number_of_rows + 1);
+		vector<string> _map(number_of_rows + 1); //карта 
 		int go_to = 0;
 
-		int kirk_r;
-		int kirk_c;
+		int kirk_r; // row where Kirk is located.
+		int kirk_c; // column where Kirk is located.
 		cin >> kirk_r >> kirk_c; cin.ignore();
 
-
+		//положение кирка
 		int kirk_pos = get_num({ kirk_r, kirk_c }, number_of_columns);
 		for (int i = 0; i < number_of_rows; i++)
 		{
 			cin >> _map[i]; cin.ignore();
 		}
+		 
+			for (int i = 0; i < number_of_rows; i++)
+			{
+			    cerr << _map[i] << endl;
+			    }
 
 		if (kirk_r == room_coordinate.first
 			&& kirk_c == room_coordinate.second)
@@ -68,9 +73,9 @@ int main()
 				if (_map[i][j] != '#'
 					&& _map[i][j] != '?')
 				{
-					//room pos
 					if (_map[i][j] == 'C')
 					{
+						//room
 						room_found = true;
 						room_coordinate.first = i;
 						room_coordinate.second = j;
@@ -87,8 +92,7 @@ int main()
 			}
 		}
 
-		//определение точки, к которой нужно двигаться
-		for (int i = 0; i < number_of_rows; i++)
+		for (int i = 0; i < number_of_rows; i++) //определение точки, к которой нужно двигаться
 		{
 			for (int j = 0; j < number_of_columns; j++)
 			{
@@ -271,9 +275,48 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 				it = num_weight.find(finish);
 				if (it == (num_weight.end()))
 				{
-					return way;
+					return way; //маршрут не найден
 				}
-				break;
+				else
+				{
+					//восстанавливаем путь
+					current_num = finish;
+					way.push(finish);
+					it_g = g.begin();
+					do
+					{
+						int temp_num = (*(*it_g).begin()).num;
+						if (current_num == temp_num)
+						{
+							list<graph_node> ::iterator it_n = (*it_g).begin();
+							int min = (*it_n).weight;
+							it_n++;
+							int temp;
+							for (it_n; it_n != (*it_g).end(); it_n++)
+							{
+								if ((*it_n).weight < min)
+								{
+									min = (*it_n).weight;
+									temp = (*it_n).num;
+								}
+							}
+							way.push(temp);
+
+							if (min == 0)
+							{
+								way.pop();
+								return way;
+							}
+							it_g = g.begin();
+							current_num = temp;
+						}
+						else
+						{
+							//если не нашли, то идем дальше 
+							++it_g;
+						}
+					} while (it_g != g.end());
+				}
 			}
 
 			//если не пуста - берем соседа из очереди
@@ -293,44 +336,11 @@ stack<int> find_way(list<list<graph_node>> &g, int start, int finish)
 		}
 	} while (it_g != g.end());
 
-	current_num = finish;
-	way.push(finish);
-	it_g = g.begin();
-	do
-	{
-		int temp_num = (*(*it_g).begin()).num;
-		if (current_num == temp_num)
-		{
-			list<graph_node> ::iterator it_n = (*it_g).begin();
-			int min = (*it_n).weight;
-			it_n++;
-			int temp;
-			for (it_n; it_n != (*it_g).end(); it_n++)
-			{
-				if ((*it_n).weight < min)
-				{
-					min = (*it_n).weight;
-					temp = (*it_n).num;
-				}
-			}
-			way.push(temp);
-
-			if (min == 0)
-			{
-				way.pop();
-				return way;
-			}
-			it_g = g.begin();
-			current_num = temp;
-		}
-
-		else
-		{
-			//если не нашли, то идем дальше 
-			++it_g;
-		}
-	} while (it_g != g.end());
+	//если не нашли  - выход 
+	return way;
 }
+
+
 
 char* calc_dir(int from, int to, int size_c)
 {
@@ -365,3 +375,5 @@ int get_num(pair<int, int> p, int size_c)
 {
 	return (p.first * size_c + p.second + 1);
 }
+
+
