@@ -1,8 +1,19 @@
 #pragma once
 
+struct map_point_collection
+{
+	vector<int> isolated_points;
+	vector<int> not_isolated_points;
+	vector<int>  no_way;
+	vector<string> map;
+};
+
+
 #ifdef MAP_1
 
-const vector<string> _map =
+#define MAP_1_ID 1
+
+const vector<string> map_1 =
 {
 	"??????????????????????????????",
 	"??????????????????????????????",
@@ -20,9 +31,9 @@ const vector<string> _map =
 	"??????????????????????????????"
 };
 
-const vector<int> isolated_points;
+const vector<int> isolated_points_1;
 
-const vector<int> not_isolated_points =
+const vector<int> not_isolated_points_1 =
 {
 	156,
 	157,
@@ -31,13 +42,17 @@ const vector<int> not_isolated_points =
 	160
 };
 
+vector<int>  no_way_1;
+
 
 #endif // MAP_1
 
 
 #ifdef MAP_2
 
-const vector<string>  _map =
+#define MAP_2_ID 2
+
+const vector<string>  map_2 =
 {
 	"?????????????????####.....##??",
 	"?????????????????.##########??",
@@ -56,7 +71,7 @@ const vector<string>  _map =
 	"??????????????????????????????"
 };
 
-const vector<int> isolated_points =
+const vector<int> isolated_points_2 =
 {
 	22,
 	23,
@@ -71,7 +86,7 @@ const vector<int> isolated_points =
 };
 
 
-const vector<int> not_isolated_points =
+const vector<int> not_isolated_points_2 =
 {
 	84,
 	85,  
@@ -80,12 +95,16 @@ const vector<int> not_isolated_points =
 	172
 };
 
+vector<int>  no_way_2;
 
 #endif
 
 
 #ifdef MAP_3
-const vector<string>  _map =
+
+#define MAP_3_ID 3
+
+const vector<string>  map_3 =
 {
 	"##############################",
 	"#T...........................#",
@@ -104,9 +123,9 @@ const vector<string>  _map =
 	"##############################"
 };
 
-const vector<int> isolated_points;
+const vector<int> isolated_points_3;
 
-const vector<int> not_isolated_points =
+const vector<int> not_isolated_points_3 =
 {
 	84,
 	85,
@@ -115,10 +134,15 @@ const vector<int> not_isolated_points =
 	172
 };
 
+vector<int>  no_way_3;
+
 #endif
 
 #ifdef MAP_4
-const vector<string>  _map =
+
+#define MAP_4_ID 4
+
+const vector<string>  map_4 =
 {
 	"##############################",
 	"#............................#",
@@ -137,16 +161,17 @@ const vector<string>  _map =
 	"##############################"
 };
 
-const vector<int> isolated_points;
+const vector<int> isolated_points_4;
 
 
-const vector<int> not_isolated_points =
+const vector<int> not_isolated_points_4 =
 {
 	45,
 	48,
 	108,
 };
+vector<int>  no_way_4;
 
 #endif
 
-vector<int>  no_way;
+
